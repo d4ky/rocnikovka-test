@@ -3,6 +3,7 @@ using final_real_real_rocnikovka2.Graphics.Rendering;
 using final_real_real_rocnikovka2.Utils;
 using System;
 using System.Collections.Generic;
+using System.ComponentModel;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
@@ -137,14 +138,13 @@ namespace final_real_real_rocnikovka2.Algorithms
             if (IsSortedBool) return;
             switch (StepState)
             {
-                case 0:
-                    //Selectne top line ball
+                case 0: // select top line ball
                     Animate.AnimationClear();
                     Animate.BallStrokeColorChange(Balls[CurrentIndex], ColorPalette.SELECTED_STROKE, 0.5, 0);
                     Animate.AnimationRun();
                     StepState = 1;
                     break;
-                case 1:
+                case 1: // move top line ball
                     Animate.AnimationClear();
                     
                     Canvas.SetZIndex(Balls[CurrentIndex].BallText.MainUIElement, 1);
@@ -167,7 +167,7 @@ namespace final_real_real_rocnikovka2.Algorithms
                     } 
                     Animate.AnimationRun();
                     break;
-                case 2:
+                case 2: // remove top line, move tree, add bottom line
                     Animate.AnimationClear();
                     foreach (Ball b in TopLineFakes)
                     {
@@ -202,7 +202,7 @@ namespace final_real_real_rocnikovka2.Algorithms
                     CurrentIndex = N - 1;
                     StepState = 3;
                     break;
-                case 3:
+                case 3: // select two tree balls 
                     GreaterThanSymbol?.Delete();
                     Animate.AnimationClear();
                     if (CurrentIndex + 1 != N && Balls[CurrentIndex + 1].GetStrokeColor() == ColorPalette.SELECTED_STROKE)
@@ -215,7 +215,7 @@ namespace final_real_real_rocnikovka2.Algorithms
                     Animate.AnimationRun();
                     StepState = 4;
                     break;
-                case 4:
+                case 4: // create greater than symbol
                     Animate.AnimationClear();
                     GreaterThanSymbol = new(Balls[0].MainCanvas, 0, ColorPalette.DEFAULT_FILL, ColorPalette.DEFAULT_STROKE, 1);
                     
@@ -227,14 +227,11 @@ namespace final_real_real_rocnikovka2.Algorithms
                     double xPos = (TreeBallPos[indexParent].X + TreeBallPos[indexChild].X) / 2;
                     double yPos = (TreeBallPos[indexParent].Y + TreeBallPos[indexChild].Y) / 2;
 
-                    
-
+                 
                     double deltaX = TreeBallPos[indexChild].X - TreeBallPos[indexParent].X;
                     double deltaY = TreeBallPos[indexChild].Y - TreeBallPos[indexParent].Y;
                     double angleInRadians = Math.Atan2(deltaY, deltaX);
                     double angleInDegrees = angleInRadians * (180 / Math.PI);
-
-
 
                     
                     if (Numbers[CurrentIndex] > Numbers[(int)Math.Floor((double)(CurrentIndex - 1) / 2)])
@@ -270,8 +267,7 @@ namespace final_real_real_rocnikovka2.Algorithms
                     GreaterThanSymbol.AddToCanvas();
                     Animate.AnimationRun();
                     break;
-                case 5:
-                    //swap ve strome
+                case 5: // swap in tree
                     Animate.AnimationClear();
                     Animate.BallSwapInTree(Balls[CurrentIndex], Balls[(int)Math.Floor((double)(CurrentIndex - 1) / 2)], 1, 0);
                     SwapInList(Numbers, CurrentIndex, (int)Math.Floor((double)(CurrentIndex - 1) / 2));
@@ -291,54 +287,55 @@ namespace final_real_real_rocnikovka2.Algorithms
                     }
 
                     break;
-                case 6:
+                case 6: // red select root and last leaf
                     GreaterThanSymbol?.Delete();
                     Animate.AnimationClear();
+                    Animate.BallStrokeColorChange(Balls[(int)Math.Floor((double)(CurrentIndex - 1)/2)], ColorPalette.DEFAULT_STROKE, 0, 0);
                     Animate.BallStrokeColorChange(Balls[CurrentIndex], ColorPalette.DEFAULT_STROKE, 0, 0);
                     Animate.BallStrokeColorChange(Balls[0], ColorPalette.DEFAULT_STROKE, 0, 0);
                     Animate.BallStrokeColorChange(Balls[0], ColorPalette.PURE_RED, 0.5, 0);
                     Animate.BallStrokeColorChange(Balls[N - 1 - NumberDone], ColorPalette.PURE_RED, 0.5, 0);
                     Animate.AnimationRun();
                     StepState = 7;
-                    break;
-                case 7:
-                    // horni dolni
-
+                    break; 
+                case 7: // root swap
                     Animate.AnimationClear();
-                    
-                    
-
-                    Animate.MoveBallWithText(Balls[0], BottomLinePos[N - 1 - NumberDone].X, BottomLinePos[N - 1 - NumberDone].Y, 1, 1);
+                    Animate.MoveBallWithText(Balls[0], BottomLinePos[N - 1 - NumberDone].X, BottomLinePos[N - 1 - NumberDone].Y, 1, 0);
                     
                     if (NumberDone != N - 2)
-                        Animate.MoveBallWithText(Balls[N - 1 - NumberDone], TreeBallPos[0].X, TreeBallPos[0].Y, 1, 2);
+                        Animate.MoveBallWithText(Balls[N - 1 - NumberDone], TreeBallPos[0].X, TreeBallPos[0].Y, 1, 1);
                     
-                    Animate.BallFillColorChange(Balls[0], ColorPalette.GREEN_FILL, 0, 2);
-                    Animate.BallStrokeColorChange(Balls[0], ColorPalette.GREEN_STROKE, 0, 2);
-                    Animate.BallStrokeColorChange(Balls[N - 1 - NumberDone], ColorPalette.DEFAULT_STROKE, 1, 2);
+                    Animate.BallFillColorChange(Balls[0], ColorPalette.GREEN_FILL, 0, 1);
+                    Animate.BallStrokeColorChange(Balls[0], ColorPalette.GREEN_STROKE, 0, 1);
+                    Animate.BallStrokeColorChange(Balls[N - 1 - NumberDone], ColorPalette.DEFAULT_STROKE, 1, 1);
 
                     
                     SwapInList(Balls, 0, N - 1 - NumberDone);
                     SwapInList(Numbers, 0, N - 1 - NumberDone);
 
                     NumberDone++;
-                    if (N - NumberDone == 1)
+                    if (N - NumberDone == 1) // hotovo
                     {
                         StepState = 8;
-                        Animate.MoveBallWithText(Balls[0], BottomLinePos[N - 1 - NumberDone].X, BottomLinePos[N - 1 - NumberDone].Y, 1, 3);
-                        Animate.BallFillColorChange(Balls[0], ColorPalette.GREEN_FILL, 0, 4);
-                        Animate.BallStrokeColorChange(Balls[0], ColorPalette.GREEN_STROKE, 0, 4);
-                       
-
-
-                    } else
+                        Animate.MoveBallWithText(Balls[0], BottomLinePos[N - 1 - NumberDone].X, BottomLinePos[N - 1 - NumberDone].Y, 1, 2);
+                        Animate.BallFillColorChange(Balls[0], ColorPalette.GREEN_FILL, 0, 3);
+                        Animate.BallStrokeColorChange(Balls[0], ColorPalette.GREEN_STROKE, 0, 3);
+                    } else // bublani
                     {
-                        CurrentIndex = N - 1 - NumberDone;
-                        StepState = 3;
+                        CurrentIndex = 0;
+                        if (CurrentIndex * 2 + 2 > N - NumberDone - 1)
+                        {
+                            CurrentIndex = CurrentIndex * 2 + 1;
+                            StepState = 13;
+                        }
+                        else
+                        {
+                            StepState = 9;
+                        }
                     }
                     Animate.AnimationRun();
                     break;
-                case 8:
+                case 8: // remove tree
                     IsSortedBool = true;
                     Animate.AnimationClear();
                     foreach (GraphicElement g in GraphicElements)
@@ -353,6 +350,131 @@ namespace final_real_real_rocnikovka2.Algorithms
                         Animate.MoveBallWithText(b, b.X, Balls[0].MainCanvas.ActualHeight / 2 - Draw.BallRadius, 1, 1);
                     }
                     Animate.AnimationRun();
+                    break;
+                case 9: // select two children CurrentIndex * 2 + 1 a CurrentIndex * 2 + 2
+                    Animate.AnimationClear();
+                    Animate.BallStrokeColorChange(Balls[CurrentIndex * 2 + 1], ColorPalette.SELECTED_STROKE, 0.5, 0);
+                    Animate.BallStrokeColorChange(Balls[CurrentIndex * 2 + 2], ColorPalette.SELECTED_STROKE, 0.5, 0);
+                    GreaterThanSymbol = new(Balls[0].MainCanvas, 0, ColorPalette.DEFAULT_FILL, ColorPalette.DEFAULT_STROKE, 1);
+                    GraphicElements.Add(GreaterThanSymbol);
+                    
+
+                    
+                    if (Numbers[CurrentIndex  * 2 + 1] > Numbers[CurrentIndex * 2 + 2])
+                    {
+                        GreaterThanSymbol.BallText = new(GreaterThanSymbol.MainCanvas, 0, Colors.Green, ">", 0);
+                        GreaterThanSymbol.SetPosition((TreeBallPos[CurrentIndex * 2 + 1].X + TreeBallPos[CurrentIndex * 2 + 2].X) / 2, TreeBallPos[CurrentIndex * 2 + 1].Y);
+                        CurrentIndex = CurrentIndex * 2 + 1;
+                    } else if (Numbers[CurrentIndex * 2 + 1] < Numbers[CurrentIndex * 2 + 2])
+                    {
+                        GreaterThanSymbol.BallText = new(GreaterThanSymbol.MainCanvas, 0, Colors.Green, "<", 0);
+                        GreaterThanSymbol.SetPosition((TreeBallPos[CurrentIndex * 2 + 1].X + TreeBallPos[CurrentIndex * 2 + 2].X) / 2, TreeBallPos[CurrentIndex * 2 + 1].Y);
+                        CurrentIndex = CurrentIndex * 2 + 2;
+                    } else
+                    {
+                        GreaterThanSymbol.BallText = new(GreaterThanSymbol.MainCanvas, 0, Colors.Green, "=", 0);
+                        GreaterThanSymbol.SetPosition((TreeBallPos[CurrentIndex * 2 + 1].X + TreeBallPos[CurrentIndex * 2 + 2].X) / 2, TreeBallPos[CurrentIndex * 2 + 1].Y);
+                        CurrentIndex = CurrentIndex * 2 + 2;
+                    }
+                    Animate.OpacityChange(GreaterThanSymbol.BallText, 1, 0, 0.5);
+                    GreaterThanSymbol.AddToCanvas();
+                    StepState = 10;
+                    Animate.AnimationRun();
+                    break;
+                case 10: // remove gresater than symbol, remove selected stroke color on smaller ball
+                    Animate.AnimationClear();
+                    Animate.OpacityChange(GreaterThanSymbol.BallText, 0, 0.5, 0);
+                    if (CurrentIndex % 2 == 0)
+                    {
+                        Animate.BallStrokeColorChange(Balls[CurrentIndex - 1], ColorPalette.DEFAULT_STROKE, 0.5, 0);
+                    } else
+                    {
+                        Animate.BallStrokeColorChange(Balls[CurrentIndex + 1], ColorPalette.DEFAULT_STROKE, 0.5, 0);
+                    }
+                    Animate.BallStrokeColorChange(Balls[(int)Math.Floor((double)(CurrentIndex - 1) / 2)], ColorPalette.SELECTED_STROKE, 0.5, 0.5);
+                    Animate.AnimationRun();
+                    StepState = 11;
+                    break;
+                case 11: // parent child comparison
+                    GreaterThanSymbol.Delete();
+                    Animate.AnimationClear();
+                    GreaterThanSymbol = new(Balls[0].MainCanvas, 0, ColorPalette.DEFAULT_FILL, ColorPalette.DEFAULT_STROKE, 1);
+
+
+                    GraphicElements.Add(GreaterThanSymbol);
+
+                    int iCh = CurrentIndex;
+                    int iP = (int)Math.Floor((double)(CurrentIndex - 1) / 2);
+                    double xPos1 = (TreeBallPos[iP].X + TreeBallPos[iCh].X) / 2;
+                    double yPos1 = (TreeBallPos[iP].Y + TreeBallPos[iCh].Y) / 2;
+
+
+                    double deltaX1 = TreeBallPos[iCh].X - TreeBallPos[iP].X;
+                    double deltaY1 = TreeBallPos[iCh].Y - TreeBallPos[iP].Y;
+                    double angleInRadians1 = Math.Atan2(deltaY1, deltaX1);
+                    double angleInDegrees1 = angleInRadians1 * (180 / Math.PI);
+
+
+                    if (Numbers[CurrentIndex] > Numbers[(int)Math.Floor((double)(CurrentIndex - 1) / 2)])
+                    {
+                        //nakreslit comparison se spravnym uhlem, cervnea
+                        GreaterThanSymbol.BallText = new(GreaterThanSymbol.MainCanvas, 1, Colors.WhiteSmoke, ">", angleInDegrees1);
+                        Animate.TextColorChange(GreaterThanSymbol.BallText, ColorPalette.PURE_RED, 0, 0);
+                        StepState = 12;
+                    }
+                    else
+                    {
+                        if (Numbers[CurrentIndex] == Numbers[(int)Math.Floor((double)(CurrentIndex - 1) / 2)])
+                        {
+                            //nakreslit s rovna se
+                            GreaterThanSymbol.BallText = new(GreaterThanSymbol.MainCanvas, 1, Colors.WhiteSmoke, "=", angleInDegrees1);
+                            Animate.TextColorChange(GreaterThanSymbol.BallText, ColorPalette.PURE_GREEN, 0, 0);
+                        }
+                        else
+                        {
+                            // nakreslit comparison se spravnymn uhlem, zelena
+                            GreaterThanSymbol.BallText = new(GreaterThanSymbol.MainCanvas, 1, Colors.WhiteSmoke, ">", angleInDegrees1 );
+                            Animate.TextColorChange(GreaterThanSymbol.BallText, ColorPalette.PURE_GREEN, 0, 0);
+                        }
+
+                        StepState = 6; // tady kdyz se rovnaji tak root swap myslim
+                    }
+                    GreaterThanSymbol.SetPosition(xPos1, yPos1);
+                    GreaterThanSymbol.AddToCanvas();
+                    Animate.AnimationRun();
+                    break;
+                case 12: // tree ball swap
+                    Animate.AnimationClear();
+                    Animate.BallSwapInTree(Balls[CurrentIndex], Balls[(int)Math.Floor((double)(CurrentIndex - 1) / 2)], 1, 0);
+                    SwapInList(Numbers, CurrentIndex, (int)Math.Floor((double)(CurrentIndex - 1) / 2));
+                    SwapInList(Balls, CurrentIndex, (int)Math.Floor((double)(CurrentIndex - 1) / 2));
+                    //Animate.BallStrokeColorChange(Balls[CurrentIndex], ColorPalette.DEFAULT_STROKE, 0.5, 0);
+                    Animate.BallStrokeColorChange(Balls[(int)Math.Floor((double)(CurrentIndex - 1) / 2)], ColorPalette.DEFAULT_STROKE, 0.5, 0);
+                    Animate.OpacityChange(GreaterThanSymbol.BallText, 0, 1, 0);
+                    Animate.AnimationRun();
+
+                    if (CurrentIndex * 2 + 1 > N - NumberDone - 1)
+                    {
+                        StepState = 6;
+                    } else
+                    {
+                        if (CurrentIndex * 2 + 2 > N - NumberDone - 1)
+                        {
+                            CurrentIndex = CurrentIndex * 2 + 1;
+                            StepState = 13;
+                        } else
+                        {
+                            StepState = 9;
+                        }
+                    }
+                  
+                    break;
+                case 13:
+                    Animate.AnimationClear();
+                    Animate.BallStrokeColorChange(Balls[CurrentIndex], ColorPalette.SELECTED_STROKE, 0.5, 0);
+                    Animate.BallStrokeColorChange(Balls[(int)Math.Floor((double)(CurrentIndex - 1) / 2)], ColorPalette.SELECTED_STROKE, 0.5, 0);
+                    Animate.AnimationRun();
+                    StepState = 11;
                     break;
             }
 

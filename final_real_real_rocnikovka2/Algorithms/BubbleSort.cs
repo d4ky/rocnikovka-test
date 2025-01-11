@@ -91,6 +91,7 @@ namespace final_real_real_rocnikovka2.Algorithms
                     Boxes[j].ChangeColor(ColorPalette.DEFAULT_BAR_FILL);
                     Boxes[j + 1].ChangeColor(ColorPalette.DEFAULT_BAR_FILL);
                 }
+
             }
         }
 
